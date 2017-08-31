@@ -32,7 +32,9 @@ public class KnightTour {
 			for (int individuo = 1; individuo < entrada[0].length; individuo++) {
 				ponteiro2 = procuraIndividuo(entrada, individuo + 1, i);
 				if (avaliaIndividuo2(ponteiro, ponteiro2)) {
-					avaliacao[i]++;
+					avaliacao[i]+=5;// 315 = ótimo
+				}else{
+					avaliacao[i]+=1;
 				}
 				ponteiro = ponteiro2;
 			}
@@ -52,9 +54,6 @@ public class KnightTour {
 
 	private int procuraIndividuo(Integer[][] entrada, int individuo, int indice){
 		for (int i = 0; i <= entrada.length; i++) {
-			if(individuo == 64){
-				
-			}
 			if(entrada[indice][i] == individuo){
 				return i;
 			}
