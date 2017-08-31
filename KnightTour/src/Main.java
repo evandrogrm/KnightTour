@@ -12,7 +12,7 @@ public class Main {
 		
 		entrada = kt.inicializaPopulacao(entrada, tamanhoEntrada);
 		for (int T = 0; T < 1000; T++) {
-			avaliacao = kt.avaliaPopulacao(entrada);
+			avaliacao = kt.avaliaPopulacao2(entrada);
 			/*
 			selecionados = selecionaPais(avaliacao, entrada); 
 			entrada = recombinar(selecionados); 
