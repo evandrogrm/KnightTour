@@ -1,6 +1,9 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class KnightTour {
 
@@ -23,7 +26,7 @@ public class KnightTour {
 		return entrada;
 	}
 	
-	public int[] avaliaPopulacao2(Integer[][] entrada) {
+	public int[] avaliaPopulacao(Integer[][] entrada) {
 		int[] avaliacao = new int[entrada.length];
 		int ponteiro = 0;
 		int ponteiro2 = 0;
@@ -38,13 +41,23 @@ public class KnightTour {
 				}
 				ponteiro = ponteiro2;
 			}
+			if(avaliacao[i]>=315){
+				System.out.println("Encontrado solução!");
+				System.out.println("Entrada["+i+"] = "+Arrays.toString(entrada[i]));
+				ponteiro = procuraIndividuo(entrada, 1, i);
+				ponteiro2 = procuraIndividuo(entrada, 64, i);
+				if(avaliaIndividuo2(ponteiro, ponteiro2)){
+					System.out.println("Ciclo Hamiltoniano");
+				}
+			}
+			
 		}
 		
 		return avaliacao;
 	}
 
 	private boolean avaliaIndividuo2(int ponteiro, int ponteiro2) {
-		Integer[] valoresAceitos = { 6, -6, 10, -10, 15, -15, 17, -17 }; 
+		Integer[] valoresAceitos = {6, -6, 10, -10, 15, -15, 17, -17}; 
 		List<Integer> listaAceitos = Arrays.asList(valoresAceitos);
 		if(listaAceitos.contains(ponteiro-ponteiro2)){
 			return true;
@@ -59,6 +72,119 @@ public class KnightTour {
 			}
 		}
 		return 0;
+	}
+
+	public Integer[][] selecionaPais(int[] avaliacao, Integer[][] entrada) {
+		Integer[][] selecionados = new Integer[entrada.length / 2][entrada[0].length];
+		boolean changed = true;
+		int tempAva = 0;
+		Integer[] tempEnt = null;
+		while (changed) {
+			changed = false;
+			for (int i = 0; i < avaliacao.length - 1; i++) {
+				if (avaliacao[i + 1] > avaliacao[i]) {
+					// swap
+					// swap(avaliacao2[i+1],avaliacao2[i]);
+					tempAva = avaliacao[i];
+					avaliacao[i] = avaliacao[i + 1];
+					avaliacao[i + 1] = tempAva;
+					// swap(entrada2[i+1],entrada2[i]);
+					tempEnt = entrada[i];
+					entrada[i] = entrada[i + 1];
+					entrada[i + 1] = tempEnt;
+					changed = true;
+				}
+			}
+		}
+		for (int i = 0; i < selecionados.length; i++) {
+			selecionados[i] = entrada[i];
+		}
+		System.out.println();
+		return selecionados;
+	}
+
+	public Integer[][] recombinar(Integer[][] selecionados) {
+		Integer[][] populacao = new Integer[selecionados.length * 2][selecionados[0].length];
+		Integer[][] filhos = new Integer[selecionados.length][selecionados[0].length];
+		ArrayList<Integer> listaJaCombinados = new ArrayList<>();
+		ArrayList<Integer[]> listaSelecionados = new ArrayList<>();
+		Random rnd = ThreadLocalRandom.current();
+		int[] pontoDeCorte = new int[3];
+		pontoDeCorte[0] = 1 + rnd.nextInt(selecionados[0].length - 1);
+		pontoDeCorte[1] = pontoDeCorte[0] + rnd.nextInt(selecionados[0].length - 1);
+		pontoDeCorte[2] = pontoDeCorte[1] + rnd.nextInt(selecionados[0].length - 1);
+		System.out.println("Pontos de corte: "+Arrays.toString(pontoDeCorte));
+		int indiceFilhos = 0;
+		for (int i = 0; i < filhos.length / 2; i++) {
+			int controle = 0;
+			int[] filhoEscolhido = new int[2];
+			while (controle < 2) {
+				int escolhido = 0 + rnd.nextInt(selecionados.length);
+				if (listaJaCombinados.isEmpty() || (!listaJaCombinados.contains(escolhido))) {
+					filhoEscolhido[controle] = escolhido;
+					listaJaCombinados.add(escolhido);
+					controle++;
+				}
+			}
+			Integer[][] filhosGerados = cutAndCrossFill(selecionados[filhoEscolhido[0]], selecionados[filhoEscolhido[1]], pontoDeCorte);
+			filhos[indiceFilhos] = filhosGerados[0];
+			filhos[indiceFilhos + 1] = filhosGerados[1];
+			indiceFilhos += 2;
+		}
+		for (int i = 0; i < selecionados.length; i++) {
+			if(!listaSelecionados.contains(selecionados[i])){
+				populacao[i] = selecionados[i].clone(); // pais
+				listaSelecionados.add(selecionados[i].clone());
+			}
+		}
+		indiceFilhos = 0;
+		for (int i = selecionados.length; i < populacao.length; i++) {
+			if(!listaSelecionados.contains(filhos[indiceFilhos])){
+				populacao[i] = filhos[indiceFilhos]; // filhos
+				listaSelecionados.add(filhos[indiceFilhos]);
+			}
+			indiceFilhos++;
+		}
+
+		return populacao;
+	}
+
+	private Integer[][] cutAndCrossFill(Integer[] array1, Integer[] array2, int[] pontoDeCorte) {
+		Integer[][] filhos = new Integer[2][array1.length];
+		Integer[] array = null;
+		Integer[] arrayOutro = null;
+		for (int i = 0; i < 2; i++) {
+			if (i == 0) {
+				array = array1.clone();
+				arrayOutro = array2.clone();
+			} else {
+				array = array2.clone();
+				arrayOutro = array1.clone();
+			}
+			for (int l = 0; l < pontoDeCorte.length; l++) {
+				for (int j = 0; j < pontoDeCorte[l]; j++) {
+					filhos[i][j] = array[j];
+				}
+				for (int k = 0; k < arrayOutro.length; k++) {
+					int c = pontoDeCorte[l];
+					if (!contemNumeroNoArray(arrayOutro[k], filhos[i])) {
+						filhos[i][c] = arrayOutro[k];
+						c++;
+					}
+				}
+			}
+
+		}
+		return filhos;
+	}
+
+	private boolean contemNumeroNoArray(Integer num, Integer[] array) {
+		for (int j = 0; j < array.length; j++) {
+			if (array[j] == num) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
