@@ -109,10 +109,11 @@ public class KnightTour {
 		ArrayList<Integer> listaJaCombinados = new ArrayList<>();
 		ArrayList<Integer[]> listaSelecionados = new ArrayList<>();
 		Random rnd = ThreadLocalRandom.current();
-		int[] pontoDeCorte = new int[3];
+		int[] pontoDeCorte = new int[2];
 		pontoDeCorte[0] = 1 + rnd.nextInt(selecionados[0].length - 1);
-		pontoDeCorte[1] = pontoDeCorte[0] + rnd.nextInt(selecionados[0].length - 1);
-		pontoDeCorte[2] = pontoDeCorte[1] + rnd.nextInt(selecionados[0].length - 1);
+		while(pontoDeCorte[1] < pontoDeCorte[0]){
+			pontoDeCorte[1] = 1 + rnd.nextInt(selecionados[0].length - 1);
+		}
 		System.out.println("Pontos de corte: "+Arrays.toString(pontoDeCorte));
 		int indiceFilhos = 0;
 		for (int i = 0; i < filhos.length / 2; i++) {
@@ -149,26 +150,39 @@ public class KnightTour {
 		return populacao;
 	}
 
-	private Integer[][] cutAndCrossFill(Integer[] array1, Integer[] array2, int[] pontoDeCorte) {
-		Integer[][] filhos = new Integer[2][array1.length];
+	private Integer[][] cutAndCrossFill(Integer[] pai, Integer[] mae, int[] pontoDeCorte) {
+		Integer[][] filhos = new Integer[2][pai.length];
 		Integer[] array = null;
 		Integer[] arrayOutro = null;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < filhos.length; i++) {
 			if (i == 0) {
-				array = array1.clone();
-				arrayOutro = array2.clone();
+				array = pai.clone();
+				arrayOutro = mae.clone();
 			} else {
-				array = array2.clone();
-				arrayOutro = array1.clone();
+				array = mae.clone();
+				arrayOutro = pai.clone();
 			}
-			for (int l = 0; l < pontoDeCorte.length; l++) {
-				for (int j = 0; j < pontoDeCorte[l]; j++) {
-					filhos[i][j] = array[j];
+			int c = 0;
+			for (int j = 0; j < pontoDeCorte[0]; j++) {
+				filhos[i][c] = array[j];
+				c++;
+			}
+			for (int j = pontoDeCorte[0]; j < pontoDeCorte[1]; j++) {
+				if (!contemNumeroNoArray(arrayOutro[j], filhos[i])) {
+					filhos[i][c] = arrayOutro[j];
+					c++;
 				}
-				for (int k = 0; k < arrayOutro.length; k++) {
-					int c = pontoDeCorte[l];
-					if (!contemNumeroNoArray(arrayOutro[k], filhos[i])) {
-						filhos[i][c] = arrayOutro[k];
+			}
+			for (int j = pontoDeCorte[1]; j < array.length; j++) {
+				if (!contemNumeroNoArray(array[j], filhos[i])) {
+					filhos[i][c] = array[j];
+					c++;
+				}
+			}
+			while (c <= filhos[0].length - 1) {
+				for (int j = 0; j < arrayOutro.length; j++) {
+					if (!contemNumeroNoArray(arrayOutro[j], filhos[i])) {
+						filhos[i][c] = arrayOutro[j];
 						c++;
 					}
 				}
@@ -177,7 +191,7 @@ public class KnightTour {
 		}
 		return filhos;
 	}
-
+	
 	private boolean contemNumeroNoArray(Integer num, Integer[] array) {
 		for (int j = 0; j < array.length; j++) {
 			if (array[j] == num) {
