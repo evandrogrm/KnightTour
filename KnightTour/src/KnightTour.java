@@ -105,8 +105,8 @@ public class KnightTour {
 	public Integer[][] recombinar(Integer[][] selecionados) {
 		Integer[][] populacao = new Integer[selecionados.length * 2][selecionados[0].length];
 		Integer[][] filhos = new Integer[selecionados.length][selecionados[0].length];
-		ArrayList<Integer> listaJaCombinados = new ArrayList<>();
-		ArrayList<Integer[]> listaSelecionados = new ArrayList<>();
+		List<Integer> listaJaCombinados = new ArrayList<>();
+		List<Integer[]> listaSelecionados = new ArrayList<>();
 		Random rnd = ThreadLocalRandom.current();
 		int[] pontoDeCorte = new int[2];
 		pontoDeCorte[0] = 1 + rnd.nextInt(selecionados[0].length - 1);
@@ -132,20 +132,20 @@ public class KnightTour {
 			indiceFilhos += 2;
 		}
 		for (int i = 0; i < selecionados.length; i++) {
-			if(!listaSelecionados.contains(selecionados[i])){
 				populacao[i] = selecionados[i].clone(); // pais
 				listaSelecionados.add(selecionados[i].clone());
-			}
 		}
 		indiceFilhos = 0;
 		for (int i = selecionados.length; i < populacao.length; i++) {
 			if(!listaSelecionados.contains(filhos[indiceFilhos])){
 				populacao[i] = filhos[indiceFilhos].clone(); // filhos
-				listaSelecionados.add(filhos[indiceFilhos]);
+				listaSelecionados.add(filhos[indiceFilhos].clone());
+				indiceFilhos++;
+			}else{
+				System.out.println("duplicado");
 			}
-			indiceFilhos++;
 		}
-
+		
 		return populacao;
 	}
 

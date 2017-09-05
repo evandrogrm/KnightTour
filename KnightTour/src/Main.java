@@ -20,9 +20,12 @@ public class Main {
 				System.out.println("2 épocas");
 				System.out.println(Arrays.toString(avaliacao.clone()));
 			}
-			if(T==10){
-				System.out.println("10 épocas");
+			if(T>=10 && T<=20){
+				System.out.println(T+" épocas");
 				System.out.println(Arrays.toString(avaliacao.clone()));
+				for (int i = 0; i < 5; i++) {
+					System.out.println("Entrada["+i+"] = "+Arrays.toString(entrada[i]));
+				}
 			}
 			if(T==100){
 				System.out.println("100 épocas");
@@ -39,6 +42,9 @@ public class Main {
 			if(T==10000){
 				System.out.println("10000 épocas");
 				System.out.println(Arrays.toString(avaliacao.clone()));
+			}
+			if(Arrays.toString(entrada[0]).equals(Arrays.toString(entrada[1]))){
+				System.out.println("ENTRADAS DUPLICADAS");
 			}
 			avaliacao = kt.avaliaPopulacao(entrada);
 			selecionados = kt.selecionaPais(avaliacao, entrada); 
