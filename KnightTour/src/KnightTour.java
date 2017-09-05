@@ -18,11 +18,11 @@ public class KnightTour {
 			entrada[i] = entradaModelo.toArray(modelo.clone());
 //			System.out.println("Entrada["+i+"] = "+Arrays.toString(entrada[i]));
 		}
-		Integer[] teste ={13,35,24,18,14,33,27,25,17,8,39,31,46,36,43,06,10,62,16,59,55,12,26,1,4,21,19,64,61,48,47,7,11,57,37,52,9,3,56,34,15,5,51,32,28,60,54,42,44,30,20,23,40,58,38,45,41,63,29,50,2,22,53,49}; 
+//		Integer[] teste ={13,35,24,18,14,33,27,25,17,8,39,31,46,36,43,06,10,62,16,59,55,12,26,1,4,21,19,64,61,48,47,7,11,57,37,52,9,3,56,34,15,5,51,32,28,60,54,42,44,30,20,23,40,58,38,45,41,63,29,50,2,22,53,49}; 
 //		Integer[] teste = { 1, 24, 39, 36, 11, 22, 49, 34, 40, 37, 12, 23, 50, 35, 10, 21, 13, 2, 25, 38, 57, 64, 33,
 //				48, 26, 41, 60, 63, 54, 51, 20, 9, 3, 14, 53, 56, 61, 58, 47, 32, 42, 27, 62, 59, 52, 55, 8, 19, 15, 4,
 //				29, 44, 17, 6, 31, 46, 28, 43, 16, 5, 30, 45, 18, 7 }; //{SOLUÇÃO TESTE}
-		entrada[0]=teste;
+//		entrada[0]=teste;
 		return entrada;
 	}
 	
@@ -73,7 +73,7 @@ public class KnightTour {
 		}
 		return 0;
 	}
-
+	/** ORDENA OS VETORES AVALIACAO E ENTRADA**/
 	public Integer[][] selecionaPais(int[] avaliacao, Integer[][] entrada) {
 		Integer[][] selecionados = new Integer[entrada.length / 2][entrada[0].length];
 		boolean changed = true;
@@ -99,7 +99,6 @@ public class KnightTour {
 		for (int i = 0; i < selecionados.length; i++) {
 			selecionados[i] = entrada[i];
 		}
-		System.out.println();
 		return selecionados;
 	}
 
@@ -114,7 +113,7 @@ public class KnightTour {
 		while(pontoDeCorte[1] < pontoDeCorte[0]){
 			pontoDeCorte[1] = 1 + rnd.nextInt(selecionados[0].length - 1);
 		}
-		System.out.println("Pontos de corte: "+Arrays.toString(pontoDeCorte));
+//		System.out.println("Pontos de corte: "+Arrays.toString(pontoDeCorte));
 		int indiceFilhos = 0;
 		for (int i = 0; i < filhos.length / 2; i++) {
 			int controle = 0;
@@ -128,8 +127,8 @@ public class KnightTour {
 				}
 			}
 			Integer[][] filhosGerados = cutAndCrossFill(selecionados[filhoEscolhido[0]], selecionados[filhoEscolhido[1]], pontoDeCorte);
-			filhos[indiceFilhos] = filhosGerados[0];
-			filhos[indiceFilhos + 1] = filhosGerados[1];
+			filhos[indiceFilhos] = filhosGerados[0].clone();
+			filhos[indiceFilhos + 1] = filhosGerados[1].clone();
 			indiceFilhos += 2;
 		}
 		for (int i = 0; i < selecionados.length; i++) {
@@ -141,7 +140,7 @@ public class KnightTour {
 		indiceFilhos = 0;
 		for (int i = selecionados.length; i < populacao.length; i++) {
 			if(!listaSelecionados.contains(filhos[indiceFilhos])){
-				populacao[i] = filhos[indiceFilhos]; // filhos
+				populacao[i] = filhos[indiceFilhos].clone(); // filhos
 				listaSelecionados.add(filhos[indiceFilhos]);
 			}
 			indiceFilhos++;
@@ -199,6 +198,27 @@ public class KnightTour {
 			}
 		}
 		return false;
+	}
+
+	public Integer[][] aplicaMutacao(Integer[][] entrada) {
+		double perc = entrada.length*0.01;//mutação de 1%
+		double controle = 0;
+		while(perc >= controle){
+			Random rnd = ThreadLocalRandom.current();
+			int indice=0,coluna1=0,coluna2=0;
+			while (coluna1==coluna2) {
+				indice = 0 + rnd.nextInt(entrada.length);
+				coluna1 = 0 + rnd.nextInt(entrada[0].length);
+				coluna2 = 0 + rnd.nextInt(entrada[0].length);
+			}
+			//swap
+			int temp = entrada[indice][coluna1];
+			entrada[indice][coluna1] = entrada[indice][coluna2];
+			entrada[indice][coluna2] = temp;
+			controle++;
+		}
+		
+		return entrada;
 	}
 
 }
